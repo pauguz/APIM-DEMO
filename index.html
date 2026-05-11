@@ -1,143 +1,400 @@
-
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>UNMSM · Azure APIM Demo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
 <style>
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: var(--font-sans); }
-.app { padding: 1.5rem 0; max-width: 600px; }
-.tabs { display: flex; gap: 8px; margin-bottom: 1.5rem; }
-.tab { padding: 8px 20px; border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); background: transparent; cursor: pointer; font-size: 14px; color: var(--color-text-secondary); transition: all 0.15s; }
-.tab.active { background: var(--color-background-secondary); color: var(--color-text-primary); border-color: var(--color-border-primary); font-weight: 500; }
-.card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1.25rem; margin-bottom: 1rem; }
-.field { margin-bottom: 1rem; }
-.field label { display: block; font-size: 13px; color: var(--color-text-secondary); margin-bottom: 6px; }
-.field input { width: 100%; }
-.btn { width: 100%; padding: 10px; border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); background: transparent; cursor: pointer; font-size: 14px; font-weight: 500; color: var(--color-text-primary); transition: all 0.15s; margin-top: 4px; }
-.btn:hover { background: var(--color-background-secondary); }
-.btn:active { transform: scale(0.98); }
-.btn:disabled { opacity: 0.4; cursor: not-allowed; }
-.result { margin-top: 1rem; }
-.result-card { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 1rem; font-size: 13px; }
-.result-title { font-size: 12px; color: var(--color-text-secondary); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.05em; }
-.weather-temp { font-size: 36px; font-weight: 500; color: var(--color-text-primary); line-height: 1; }
-.weather-desc { font-size: 14px; color: var(--color-text-secondary); margin-top: 4px; }
-.country-name { font-size: 22px; font-weight: 500; }
-.country-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; }
-.meta-item { background: var(--color-background-primary); border-radius: var(--border-radius-md); padding: 8px 10px; border: 0.5px solid var(--color-border-tertiary); }
-.meta-label { font-size: 11px; color: var(--color-text-secondary); }
-.meta-value { font-size: 13px; font-weight: 500; margin-top: 2px; }
-.badge { display: inline-block; font-size: 11px; padding: 3px 8px; border-radius: var(--border-radius-md); margin-top: 8px; }
-.badge-ok { background: var(--color-background-success); color: var(--color-text-success); }
-.badge-err { background: var(--color-background-danger); color: var(--color-text-danger); }
-.error-msg { font-size: 13px; color: var(--color-text-danger); margin-top: 8px; }
-.loading { font-size: 13px; color: var(--color-text-secondary); margin-top: 12px; }
-.section-hidden { display: none; }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #f7f6f3;
+    --surface: #ffffff;
+    --surface2: #f0efe9;
+    --border: #e2e0d8;
+    --border2: #cccac0;
+    --text: #1a1916;
+    --text2: #6b6960;
+    --text3: #9e9c95;
+    --accent: #1d9e75;
+    --accent-bg: #e1f5ee;
+    --accent-text: #085041;
+    --danger: #d85a30;
+    --danger-bg: #faece7;
+    --danger-text: #712b13;
+    --blue: #185fa5;
+    --blue-bg: #e6f1fb;
+    --blue-text: #0c447c;
+    --radius: 12px;
+    --radius-sm: 8px;
+  }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem 1rem 4rem;
+  }
+
+  header {
+    width: 100%;
+    max-width: 560px;
+    margin-bottom: 2rem;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .logo {
+    width: 36px;
+    height: 36px;
+    background: var(--text);
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .logo svg { width: 20px; height: 20px; fill: var(--bg); }
+
+  .header-text h1 {
+    font-size: 15px;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+  }
+
+  .header-text p {
+    font-size: 12px;
+    color: var(--text3);
+    font-family: 'DM Mono', monospace;
+  }
+
+  .tabs {
+    display: flex;
+    gap: 6px;
+    width: 100%;
+    max-width: 560px;
+    margin-bottom: 1rem;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 4px;
+  }
+
+  .tab {
+    flex: 1;
+    padding: 9px;
+    border: none;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--text2);
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+
+  .tab.active {
+    background: var(--surface);
+    color: var(--text);
+    font-weight: 500;
+    border: 1px solid var(--border);
+  }
+
+  .tab svg { width: 15px; height: 15px; stroke: currentColor; fill: none; stroke-width: 1.8; }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    width: 100%;
+    max-width: 560px;
+  }
+
+  .field { margin-bottom: 1rem; }
+
+  .field label {
+    display: block;
+    font-size: 12px;
+    color: var(--text2);
+    margin-bottom: 6px;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+  }
+
+  .field input {
+    width: 100%;
+    padding: 10px 12px;
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--surface2);
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.15s;
+  }
+
+  .field input:focus { border-color: var(--border2); background: var(--surface); }
+
+  .btn {
+    width: 100%;
+    padding: 11px;
+    border: 1px solid var(--border2);
+    border-radius: var(--radius-sm);
+    background: var(--text);
+    color: var(--bg);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+    margin-top: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .btn:hover { opacity: 0.88; }
+  .btn:active { transform: scale(0.98); }
+  .btn:disabled { opacity: 0.35; cursor: not-allowed; transform: none; }
+  .btn svg { width: 15px; height: 15px; stroke: currentColor; fill: none; stroke-width: 2; }
+
+  .result { margin-top: 1.25rem; }
+
+  .result-inner {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 1.25rem;
+  }
+
+  .result-label {
+    font-size: 11px;
+    color: var(--text3);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 10px;
+    font-family: 'DM Mono', monospace;
+  }
+
+  .temp-display {
+    font-size: 48px;
+    font-weight: 300;
+    letter-spacing: -0.03em;
+    color: var(--text);
+    line-height: 1;
+  }
+
+  .temp-display span { font-size: 22px; color: var(--text2); }
+
+  .weather-cond {
+    font-size: 14px;
+    color: var(--text2);
+    margin-top: 6px;
+  }
+
+  .country-name {
+    font-size: 26px;
+    font-weight: 500;
+    letter-spacing: -0.02em;
+  }
+
+  .meta-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 14px;
+  }
+
+  .meta-cell {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 10px 12px;
+  }
+
+  .meta-cell .lbl {
+    font-size: 10px;
+    color: var(--text3);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-family: 'DM Mono', monospace;
+  }
+
+  .meta-cell .val {
+    font-size: 14px;
+    font-weight: 500;
+    margin-top: 3px;
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    font-family: 'DM Mono', monospace;
+    padding: 4px 9px;
+    border-radius: 99px;
+    margin-top: 14px;
+  }
+
+  .badge svg { width: 11px; height: 11px; stroke: currentColor; fill: none; stroke-width: 2.5; }
+  .badge-ok { background: var(--accent-bg); color: var(--accent-text); }
+  .badge-err { background: var(--danger-bg); color: var(--danger-text); }
+  .badge-info { background: var(--blue-bg); color: var(--blue-text); }
+
+  .loading {
+    font-size: 13px;
+    color: var(--text3);
+    font-family: 'DM Mono', monospace;
+    animation: pulse 1.2s ease-in-out infinite;
+  }
+
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+  .hidden { display: none; }
+
+  .divider {
+    width: 100%;
+    max-width: 560px;
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 1.5rem 0 0;
+  }
+
+  footer {
+    margin-top: 1rem;
+    font-size: 11px;
+    color: var(--text3);
+    font-family: 'DM Mono', monospace;
+    text-align: center;
+  }
 </style>
+</head>
+<body>
 
-<div class="app">
-  <h2 class="sr-only">Cliente frontend para Azure APIM - Clima y Países</h2>
-
-  <div class="tabs">
-    <button class="tab active" onclick="switchTab('clima')"><i class="ti ti-cloud" aria-hidden="true"></i> Clima</button>
-    <button class="tab" onclick="switchTab('pais')"><i class="ti ti-world" aria-hidden="true"></i> País</button>
+<header>
+  <div class="logo">
+    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
   </div>
-
-  <div id="tab-clima" class="card">
-    <div class="field">
-      <label>Ciudad</label>
-      <input type="text" id="ciudad" placeholder="Lima, Madrid, Tokyo..." value="Lima" />
-    </div>
-    <div class="field">
-      <label>API Key</label>
-      <input type="text" id="apikey-clima" placeholder="mi-clave-secreta-123" value="mi-clave-secreta-123" />
-    </div>
-    <div class="field">
-      <label>Subscription Key (Azure)</label>
-      <input type="text" id="subkey-clima" placeholder="Pega tu Ocp-Apim-Subscription-Key aquí" />
-    </div>
-    <button class="btn" id="btn-clima" onclick="consultarClima()"><i class="ti ti-search" aria-hidden="true"></i> Consultar clima</button>
-    <div id="result-clima" class="result section-hidden"></div>
+  <div class="header-text">
+    <h1>Azure APIM · Demo</h1>
+    <p>tarea-apim-unmsm · UNMSM 2026</p>
   </div>
+</header>
 
-  <div id="tab-pais" class="card section-hidden">
-    <div class="field">
-      <label>País (en inglés)</label>
-      <input type="text" id="pais" placeholder="Peru, France, Japan..." value="Peru" />
-    </div>
-    <div class="field">
-      <label>API Key</label>
-      <input type="text" id="apikey-pais" placeholder="mi-clave-secreta-123" value="mi-clave-secreta-123" />
-    </div>
-    <div class="field">
-      <label>Subscription Key (Azure)</label>
-      <input type="text" id="subkey-pais" placeholder="Pega tu Ocp-Apim-Subscription-Key aquí" />
-    </div>
-    <button class="btn" id="btn-pais" onclick="consultarPais()"><i class="ti ti-search" aria-hidden="true"></i> Consultar país</button>
-    <div id="result-pais" class="result section-hidden"></div>
-  </div>
+<div class="tabs">
+  <button class="tab active" id="tab-clima-btn" onclick="switchTab('clima')">
+    <svg viewBox="0 0 24 24"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></svg>
+    Clima
+  </button>
+  <button class="tab" id="tab-pais-btn" onclick="switchTab('pais')">
+    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+    País
+  </button>
 </div>
+
+<div class="card" id="panel-clima">
+  <div class="field">
+    <label>Ciudad</label>
+    <input type="text" id="ciudad" placeholder="Lima, Madrid, Tokyo..." value="Lima"/>
+  </div>
+  <button class="btn" id="btn-clima" onclick="consultarClima()">
+    <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    Consultar clima
+  </button>
+  <div id="result-clima" class="result hidden"></div>
+</div>
+
+<div class="card hidden" id="panel-pais">
+  <div class="field">
+    <label>País (en inglés)</label>
+    <input type="text" id="pais" placeholder="Peru, France, Japan..." value="Peru"/>
+  </div>
+  <button class="btn" id="btn-pais" onclick="consultarPais()">
+    <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    Consultar país
+  </button>
+  <div id="result-pais" class="result hidden"></div>
+</div>
+
+<hr class="divider"/>
+<footer>gateway · rate-limit · api-key · cors · custom-header</footer>
 
 <script>
 const APIM_BASE = 'https://tarea-apim-unmsm.azure-api.net';
+const API_KEY = 'mi-clave-secreta-123';
+const SUB_KEY = 'TU_SUBSCRIPTION_KEY_AQUI';
 
 function switchTab(tab) {
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  document.getElementById('tab-clima').classList.add('section-hidden');
-  document.getElementById('tab-pais').classList.add('section-hidden');
-  if (tab === 'clima') {
-    document.querySelectorAll('.tab')[0].classList.add('active');
-    document.getElementById('tab-clima').classList.remove('section-hidden');
-  } else {
-    document.querySelectorAll('.tab')[1].classList.add('active');
-    document.getElementById('tab-pais').classList.remove('section-hidden');
-  }
+  document.getElementById('tab-clima-btn').classList.toggle('active', tab === 'clima');
+  document.getElementById('tab-pais-btn').classList.toggle('active', tab === 'pais');
+  document.getElementById('panel-clima').classList.toggle('hidden', tab !== 'clima');
+  document.getElementById('panel-pais').classList.toggle('hidden', tab !== 'pais');
 }
+
+function getHeaders() {
+  return { 'x-api-key': API_KEY, 'Ocp-Apim-Subscription-Key': SUB_KEY };
+}
+
+function checkSvg() { return `<svg viewBox="0 0 24 24" style="width:11px;height:11px;stroke:currentColor;fill:none;stroke-width:2.5"><polyline points="20 6 9 17 4 12"/></svg>`; }
+function crossSvg() { return `<svg viewBox="0 0 24 24" style="width:11px;height:11px;stroke:currentColor;fill:none;stroke-width:2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`; }
 
 async function consultarClima() {
   const ciudad = document.getElementById('ciudad').value.trim();
-  const apiKey = document.getElementById('apikey-clima').value.trim();
-  const subKey = document.getElementById('subkey-clima').value.trim();
   const resultDiv = document.getElementById('result-clima');
   const btn = document.getElementById('btn-clima');
   if (!ciudad) return;
   btn.disabled = true;
-  resultDiv.classList.remove('section-hidden');
-  resultDiv.innerHTML = '<p class="loading">Consultando...</p>';
+  resultDiv.classList.remove('hidden');
+  resultDiv.innerHTML = '<div class="result-inner"><p class="loading">consultando gateway...</p></div>';
   try {
-    const headers = { 'x-api-key': apiKey };
-    if (subKey) headers['Ocp-Apim-Subscription-Key'] = subKey;
-    const res = await fetch(`${APIM_BASE}/clima/${encodeURIComponent(ciudad)}`, { headers });
+    const res = await fetch(`${APIM_BASE}/clima/${encodeURIComponent(ciudad)}`, { headers: getHeaders() });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const text = await res.text();
     const tempMatch = text.match(/(\d+)\s*°C/);
     const temp = tempMatch ? tempMatch[1] : '?';
     const condMatch = text.match(/(Sunny|Cloudy|Partly Cloudy|Rain|Clear|Overcast|Fog|Snow|Drizzle|Thunder)/i);
-    const cond = condMatch ? condMatch[1] : 'Datos obtenidos';
+    const cond = condMatch ? condMatch[1] : 'Datos recibidos';
     resultDiv.innerHTML = `
-      <div class="result-card">
-        <p class="result-title">Clima en ${ciudad}</p>
-        <p class="weather-temp">${temp}°C</p>
-        <p class="weather-desc">${cond}</p>
-        <span class="badge badge-ok"><i class="ti ti-check" aria-hidden="true"></i> 200 OK · APIM Gateway</span>
+      <div class="result-inner">
+        <p class="result-label">clima · ${ciudad.toLowerCase()}</p>
+        <p class="temp-display">${temp}<span>°C</span></p>
+        <p class="weather-cond">${cond}</p>
+        <span class="badge badge-ok">${checkSvg()} 200 OK · APIM</span>
+        <span class="badge badge-info" style="margin-left:4px">rate-limit · api-key</span>
       </div>`;
-  } catch (e) {
-    resultDiv.innerHTML = `<span class="badge badge-err"><i class="ti ti-x" aria-hidden="true"></i> Error: ${e.message}</span><p class="error-msg">Verifica tu Subscription Key y API Key.</p>`;
+  } catch(e) {
+    resultDiv.innerHTML = `<div class="result-inner"><span class="badge badge-err">${crossSvg()} ${e.message}</span><p style="font-size:12px;color:#9e9c95;margin-top:8px;font-family:'DM Mono',monospace">Verifica la configuración del gateway.</p></div>`;
   }
   btn.disabled = false;
 }
 
 async function consultarPais() {
   const pais = document.getElementById('pais').value.trim();
-  const apiKey = document.getElementById('apikey-pais').value.trim();
-  const subKey = document.getElementById('subkey-pais').value.trim();
   const resultDiv = document.getElementById('result-pais');
   const btn = document.getElementById('btn-pais');
   if (!pais) return;
   btn.disabled = true;
-  resultDiv.classList.remove('section-hidden');
-  resultDiv.innerHTML = '<p class="loading">Consultando...</p>';
+  resultDiv.classList.remove('hidden');
+  resultDiv.innerHTML = '<div class="result-inner"><p class="loading">consultando gateway...</p></div>';
   try {
-    const headers = { 'x-api-key': apiKey };
-    if (subKey) headers['Ocp-Apim-Subscription-Key'] = subKey;
-    const res = await fetch(`${APIM_BASE}/paises/name/${encodeURIComponent(pais)}`, { headers });
+    const res = await fetch(`${APIM_BASE}/paises/name/${encodeURIComponent(pais)}`, { headers: getHeaders() });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
     const c = Array.isArray(data) ? data[0] : data;
@@ -146,21 +403,25 @@ async function consultarPais() {
     const poblacion = c.population ? (c.population / 1e6).toFixed(1) + 'M' : '—';
     const region = c.region || '—';
     const moneda = c.currencies ? Object.values(c.currencies)[0]?.name || '—' : '—';
+    const flag = c.flag || '';
     resultDiv.innerHTML = `
-      <div class="result-card">
-        <p class="result-title">Datos del país</p>
-        <p class="country-name">${c.flag || ''} ${nombre}</p>
-        <div class="country-meta">
-          <div class="meta-item"><p class="meta-label">Capital</p><p class="meta-value">${capital}</p></div>
-          <div class="meta-item"><p class="meta-label">Población</p><p class="meta-value">${poblacion}</p></div>
-          <div class="meta-item"><p class="meta-label">Región</p><p class="meta-value">${region}</p></div>
-          <div class="meta-item"><p class="meta-label">Moneda</p><p class="meta-value">${moneda}</p></div>
+      <div class="result-inner">
+        <p class="result-label">país · ${nombre.toLowerCase()}</p>
+        <p class="country-name">${flag} ${nombre}</p>
+        <div class="meta-grid">
+          <div class="meta-cell"><p class="lbl">Capital</p><p class="val">${capital}</p></div>
+          <div class="meta-cell"><p class="lbl">Población</p><p class="val">${poblacion}</p></div>
+          <div class="meta-cell"><p class="lbl">Región</p><p class="val">${region}</p></div>
+          <div class="meta-cell"><p class="lbl">Moneda</p><p class="val">${moneda}</p></div>
         </div>
-        <span class="badge badge-ok"><i class="ti ti-check" aria-hidden="true"></i> 200 OK · APIM Gateway</span>
+        <span class="badge badge-ok">${checkSvg()} 200 OK · APIM</span>
+        <span class="badge badge-info" style="margin-left:4px">rate-limit · api-key</span>
       </div>`;
-  } catch (e) {
-    resultDiv.innerHTML = `<span class="badge badge-err"><i class="ti ti-x" aria-hidden="true"></i> Error: ${e.message}</span><p class="error-msg">Verifica tu Subscription Key y API Key.</p>`;
+  } catch(e) {
+    resultDiv.innerHTML = `<div class="result-inner"><span class="badge badge-err">${crossSvg()} ${e.message}</span><p style="font-size:12px;color:#9e9c95;margin-top:8px;font-family:'DM Mono',monospace">Verifica la configuración del gateway.</p></div>`;
   }
   btn.disabled = false;
 }
 </script>
+</body>
+</html>
