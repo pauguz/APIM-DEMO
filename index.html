@@ -364,18 +364,23 @@ async function consultarClima() {
   resultDiv.classList.remove('hidden');
   resultDiv.innerHTML = '<div class="result-inner"><p class="loading">consultando gateway...</p></div>';
   try {
-    const res = await fetch(`${APIM_BASE}/clima/${encodeURIComponent(ciudad)}`, { headers: getHeaders() });
+    const res = await fetch(`${APIM_BASE}/clima/${encodeURIComponent(ciudad)}?format=j1`, { headers: getHeaders() });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const text = await res.text();
-    const tempMatch = text.match(/(\d+)\s*°C/);
-    const temp = tempMatch ? tempMatch[1] : '?';
-    const condMatch = text.match(/(Sunny|Cloudy|Partly Cloudy|Rain|Clear|Overcast|Fog|Snow|Drizzle|Thunder)/i);
-    const cond = condMatch ? condMatch[1] : 'Datos recibidos';
+    const data = await res.json();
+    const current = data.current_condition[0];
+    const temp = current.temp_C;
+    const cond = current.weatherDesc[0].value;
+    const humidity = current.humidity;
+    const wind = current.windspeedKmph;
     resultDiv.innerHTML = `
       <div class="result-inner">
         <p class="result-label">clima · ${ciudad.toLowerCase()}</p>
         <p class="temp-display">${temp}<span>°C</span></p>
         <p class="weather-cond">${cond}</p>
+        <div class="meta-grid" style="margin-top:12px">
+          <div class="meta-cell"><p class="lbl">Humedad</p><p class="val">${humidity}%</p></div>
+          <div class="meta-cell"><p class="lbl">Viento</p><p class="val">${wind} km/h</p></div>
+        </div>
         <span class="badge badge-ok">${checkSvg()} 200 OK · APIM</span>
         <span class="badge badge-info" style="margin-left:4px">rate-limit · api-key</span>
       </div>`;
