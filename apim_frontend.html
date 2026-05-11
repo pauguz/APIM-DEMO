@@ -1,0 +1,166 @@
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--font-sans); }
+.app { padding: 1.5rem 0; max-width: 600px; }
+.tabs { display: flex; gap: 8px; margin-bottom: 1.5rem; }
+.tab { padding: 8px 20px; border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); background: transparent; cursor: pointer; font-size: 14px; color: var(--color-text-secondary); transition: all 0.15s; }
+.tab.active { background: var(--color-background-secondary); color: var(--color-text-primary); border-color: var(--color-border-primary); font-weight: 500; }
+.card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1.25rem; margin-bottom: 1rem; }
+.field { margin-bottom: 1rem; }
+.field label { display: block; font-size: 13px; color: var(--color-text-secondary); margin-bottom: 6px; }
+.field input { width: 100%; }
+.btn { width: 100%; padding: 10px; border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); background: transparent; cursor: pointer; font-size: 14px; font-weight: 500; color: var(--color-text-primary); transition: all 0.15s; margin-top: 4px; }
+.btn:hover { background: var(--color-background-secondary); }
+.btn:active { transform: scale(0.98); }
+.btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.result { margin-top: 1rem; }
+.result-card { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 1rem; font-size: 13px; }
+.result-title { font-size: 12px; color: var(--color-text-secondary); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.05em; }
+.weather-temp { font-size: 36px; font-weight: 500; color: var(--color-text-primary); line-height: 1; }
+.weather-desc { font-size: 14px; color: var(--color-text-secondary); margin-top: 4px; }
+.country-name { font-size: 22px; font-weight: 500; }
+.country-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; }
+.meta-item { background: var(--color-background-primary); border-radius: var(--border-radius-md); padding: 8px 10px; border: 0.5px solid var(--color-border-tertiary); }
+.meta-label { font-size: 11px; color: var(--color-text-secondary); }
+.meta-value { font-size: 13px; font-weight: 500; margin-top: 2px; }
+.badge { display: inline-block; font-size: 11px; padding: 3px 8px; border-radius: var(--border-radius-md); margin-top: 8px; }
+.badge-ok { background: var(--color-background-success); color: var(--color-text-success); }
+.badge-err { background: var(--color-background-danger); color: var(--color-text-danger); }
+.error-msg { font-size: 13px; color: var(--color-text-danger); margin-top: 8px; }
+.loading { font-size: 13px; color: var(--color-text-secondary); margin-top: 12px; }
+.section-hidden { display: none; }
+</style>
+
+<div class="app">
+  <h2 class="sr-only">Cliente frontend para Azure APIM - Clima y Países</h2>
+
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('clima')"><i class="ti ti-cloud" aria-hidden="true"></i> Clima</button>
+    <button class="tab" onclick="switchTab('pais')"><i class="ti ti-world" aria-hidden="true"></i> País</button>
+  </div>
+
+  <div id="tab-clima" class="card">
+    <div class="field">
+      <label>Ciudad</label>
+      <input type="text" id="ciudad" placeholder="Lima, Madrid, Tokyo..." value="Lima" />
+    </div>
+    <div class="field">
+      <label>API Key</label>
+      <input type="text" id="apikey-clima" placeholder="mi-clave-secreta-123" value="mi-clave-secreta-123" />
+    </div>
+    <div class="field">
+      <label>Subscription Key (Azure)</label>
+      <input type="text" id="subkey-clima" placeholder="Pega tu Ocp-Apim-Subscription-Key aquí" />
+    </div>
+    <button class="btn" id="btn-clima" onclick="consultarClima()"><i class="ti ti-search" aria-hidden="true"></i> Consultar clima</button>
+    <div id="result-clima" class="result section-hidden"></div>
+  </div>
+
+  <div id="tab-pais" class="card section-hidden">
+    <div class="field">
+      <label>País (en inglés)</label>
+      <input type="text" id="pais" placeholder="Peru, France, Japan..." value="Peru" />
+    </div>
+    <div class="field">
+      <label>API Key</label>
+      <input type="text" id="apikey-pais" placeholder="mi-clave-secreta-123" value="mi-clave-secreta-123" />
+    </div>
+    <div class="field">
+      <label>Subscription Key (Azure)</label>
+      <input type="text" id="subkey-pais" placeholder="Pega tu Ocp-Apim-Subscription-Key aquí" />
+    </div>
+    <button class="btn" id="btn-pais" onclick="consultarPais()"><i class="ti ti-search" aria-hidden="true"></i> Consultar país</button>
+    <div id="result-pais" class="result section-hidden"></div>
+  </div>
+</div>
+
+<script>
+const APIM_BASE = 'https://tarea-apim-unmsm.azure-api.net';
+
+function switchTab(tab) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-clima').classList.add('section-hidden');
+  document.getElementById('tab-pais').classList.add('section-hidden');
+  if (tab === 'clima') {
+    document.querySelectorAll('.tab')[0].classList.add('active');
+    document.getElementById('tab-clima').classList.remove('section-hidden');
+  } else {
+    document.querySelectorAll('.tab')[1].classList.add('active');
+    document.getElementById('tab-pais').classList.remove('section-hidden');
+  }
+}
+
+async function consultarClima() {
+  const ciudad = document.getElementById('ciudad').value.trim();
+  const apiKey = document.getElementById('apikey-clima').value.trim();
+  const subKey = document.getElementById('subkey-clima').value.trim();
+  const resultDiv = document.getElementById('result-clima');
+  const btn = document.getElementById('btn-clima');
+  if (!ciudad) return;
+  btn.disabled = true;
+  resultDiv.classList.remove('section-hidden');
+  resultDiv.innerHTML = '<p class="loading">Consultando...</p>';
+  try {
+    const headers = { 'x-api-key': apiKey };
+    if (subKey) headers['Ocp-Apim-Subscription-Key'] = subKey;
+    const res = await fetch(`${APIM_BASE}/clima/${encodeURIComponent(ciudad)}`, { headers });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const text = await res.text();
+    const tempMatch = text.match(/(\d+)\s*°C/);
+    const temp = tempMatch ? tempMatch[1] : '?';
+    const condMatch = text.match(/(Sunny|Cloudy|Partly Cloudy|Rain|Clear|Overcast|Fog|Snow|Drizzle|Thunder)/i);
+    const cond = condMatch ? condMatch[1] : 'Datos obtenidos';
+    resultDiv.innerHTML = `
+      <div class="result-card">
+        <p class="result-title">Clima en ${ciudad}</p>
+        <p class="weather-temp">${temp}°C</p>
+        <p class="weather-desc">${cond}</p>
+        <span class="badge badge-ok"><i class="ti ti-check" aria-hidden="true"></i> 200 OK · APIM Gateway</span>
+      </div>`;
+  } catch (e) {
+    resultDiv.innerHTML = `<span class="badge badge-err"><i class="ti ti-x" aria-hidden="true"></i> Error: ${e.message}</span><p class="error-msg">Verifica tu Subscription Key y API Key.</p>`;
+  }
+  btn.disabled = false;
+}
+
+async function consultarPais() {
+  const pais = document.getElementById('pais').value.trim();
+  const apiKey = document.getElementById('apikey-pais').value.trim();
+  const subKey = document.getElementById('subkey-pais').value.trim();
+  const resultDiv = document.getElementById('result-pais');
+  const btn = document.getElementById('btn-pais');
+  if (!pais) return;
+  btn.disabled = true;
+  resultDiv.classList.remove('section-hidden');
+  resultDiv.innerHTML = '<p class="loading">Consultando...</p>';
+  try {
+    const headers = { 'x-api-key': apiKey };
+    if (subKey) headers['Ocp-Apim-Subscription-Key'] = subKey;
+    const res = await fetch(`${APIM_BASE}/paises/name/${encodeURIComponent(pais)}`, { headers });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    const c = Array.isArray(data) ? data[0] : data;
+    const nombre = c.name?.common || pais;
+    const capital = c.capital?.[0] || '—';
+    const poblacion = c.population ? (c.population / 1e6).toFixed(1) + 'M' : '—';
+    const region = c.region || '—';
+    const moneda = c.currencies ? Object.values(c.currencies)[0]?.name || '—' : '—';
+    resultDiv.innerHTML = `
+      <div class="result-card">
+        <p class="result-title">Datos del país</p>
+        <p class="country-name">${c.flag || ''} ${nombre}</p>
+        <div class="country-meta">
+          <div class="meta-item"><p class="meta-label">Capital</p><p class="meta-value">${capital}</p></div>
+          <div class="meta-item"><p class="meta-label">Población</p><p class="meta-value">${poblacion}</p></div>
+          <div class="meta-item"><p class="meta-label">Región</p><p class="meta-value">${region}</p></div>
+          <div class="meta-item"><p class="meta-label">Moneda</p><p class="meta-value">${moneda}</p></div>
+        </div>
+        <span class="badge badge-ok"><i class="ti ti-check" aria-hidden="true"></i> 200 OK · APIM Gateway</span>
+      </div>`;
+  } catch (e) {
+    resultDiv.innerHTML = `<span class="badge badge-err"><i class="ti ti-x" aria-hidden="true"></i> Error: ${e.message}</span><p class="error-msg">Verifica tu Subscription Key y API Key.</p>`;
+  }
+  btn.disabled = false;
+}
+</script>
