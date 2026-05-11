@@ -366,7 +366,8 @@ async function consultarClima() {
   try {
     const res = await fetch(`${APIM_BASE}/clima/${encodeURIComponent(ciudad)}?format=j1`, { headers: getHeaders() });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const data = await res.json();
+    const raw = await res.text();
+    const data = JSON.parse(raw);    
     const current = data.current_condition[0];
     const temp = current.temp_C;
     const cond = current.weatherDesc[0].value;
